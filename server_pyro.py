@@ -22,13 +22,12 @@ class Network (object):
     def command(self,command):
         if self.get_parameters(command):
             components = self.get_parameters(command)
-            print ('Argumento válido ' + str(self.elements))
             try:
-                self.elements[parameters] = getattr(self.net,components[0])(components[1])
-                print('Reconhecer parametro')
-                return str(self.elements[components])
-            except:
-                print ('Valor Invalido')
+                value = getattr(self.net,components[0])(*components[1])
+                print repr(value)
+                print str(value)
+                return repr(value)
+            except Exception,TypeError:
                 return str(None)
         else:
             try:
@@ -40,11 +39,10 @@ class Network (object):
     def get_parameters(self,command):
         try:
             function = command.split('(')[0]
-            parameters = command.split('(')[1].split(')')[0].split(',')
-            print parameters
-            if not parameters[0]:
+            if len(command.split('(')) >= 2:
+                parameters = command.split('(')[1].split(')')[0].split(',')
+            else:
                 parameters = None
-                print parameters
             return [function,parameters]
         except:
             print ('Argumento invalido')
