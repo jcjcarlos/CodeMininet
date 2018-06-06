@@ -12,8 +12,7 @@ Pyro4.config.SERIALIZERS_ACCEPTED = set(['json', 'marshal', 'serpent','pickle'])
 Pyro4.config.SERIALIZER = 'json'
 
            
-class RemoteNetwork:
-    
+class RemoteNetwork(object):
     def __init__(self):
         self.hosts = {}
         self.switches = {}
@@ -28,8 +27,10 @@ class RemoteNetwork:
     def initialize(self):
        pass
         
-    def send_command(self,command):
-        return self.server.send(command)
+    def action(self,command):
+        self.server.send(command.encode('ascii'))
+        return self.server.recv(1024).decode('ascii')
+        
         """
         if(command[0:7] == 'pingAll'):
             self.network.pingAll()
@@ -45,11 +46,6 @@ class RemoteNetwork:
             print('switch')
         """
         
-    def get_variable(self,command):
-        if command.count('(') and command.count(')'):
-            return command.split('(')[1].split(')')[0]
-        else:
-            print ('Command invalid')
         
 if __name__ == '__main__':
     network = RemoteNetwork()
@@ -60,7 +56,7 @@ if __name__ == '__main__':
     
     while options != 'exit':
         options = raw_input('> ')
-        print(network.send_command(options))
+        print(network.action(options))
     print('Fim da aplicacao')
     
     
