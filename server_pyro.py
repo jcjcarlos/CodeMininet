@@ -20,12 +20,12 @@ class Network (object):
         
     def command(self,command):
         if self.get_parameters(command):
-            elements = self.get_parameters(command)
-            print ('Argumento valido ' + str(elements)))
+            components = self.get_parameters(command)
+            print ('Argumento valido ' + str(elements))
             try:
-                self.elements[parameters] = getattr(self.net,command)(parameters)
+                self.elements[parameters] = getattr(self.net,components[0])(components[1])
                 print('Reconhecer parametro')
-                return str(self.elements[parameters])
+                return str(self.elements[components])
             except:
                 print ('Valor Invalido')
                 return str(None)
