@@ -57,6 +57,7 @@ if __name__ == '__main__':
     while options != 'exit':
         options = raw_input('> ')
         print(network.action(options))
+    network.server.close()
     print('Fim da aplicacao')
     
     
