@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from mininet.topo import Topo, SingleSwitchTopo, MinimalTopo
 from mininet.topo import SingleSwitchReversedTopo, LinearTopo
 from mininet.net import Mininet
@@ -24,28 +25,9 @@ class RemoteNetwork(object):
         #self.network = Pyro4.Proxy(uri)
         #server.close()
         
-    def initialize(self):
-       pass
-        
     def action(self,command):
         self.server.send(command.encode('ascii'))
         return self.server.recv(1024).decode('ascii')
-        
-        """
-        if(command[0:7] == 'pingAll'):
-            self.network.pingAll()
-            return
-        
-        nome_variavel = self.get_variable(command)
-        
-        if(command[0:7] == 'addHost'):
-            self.hosts['h1'] = self.network.addHost('h1')
-            print(self.hosts[nome_variavel])
-            
-        if(command[0:9]== 'addSwitch'):
-            print('switch')
-        """
-        
         
 if __name__ == '__main__':
     network = RemoteNetwork()
