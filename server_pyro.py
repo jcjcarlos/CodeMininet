@@ -12,6 +12,7 @@ import pickle
 Pyro4.config.SERIALIZERS_ACCEPTED = set(['json', 'marshal', 'serpent','pickle'])
 Pyro4.config.SERIALIZER = 'json'
 
+
 class Network (object):
     def __init__(self,topo):
         setLogLevel('info')
