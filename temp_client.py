@@ -10,6 +10,7 @@ mensagem = cliente.recv(1024)
 print (mensagem.decode('ascii'))
 opcao = input('Digite uma opcao')
 while (opcao != '-1'):
-    print cliente.recv(1024)"""
+    print cliente.recv(1024)
+    """
     cliente.send(opcao.encode('ascii'))
     opcao = raw_input(">")"""
