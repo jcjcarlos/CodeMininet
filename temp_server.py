@@ -1,18 +1,17 @@
-#!bin/python2.7
-from mininet.topo import Topo, SingleSwitchTopo, MinimalTopo
-from mininet.topo import SingleSwitchReversedTopo, LinearTopo
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from mininet.topo import *
 from mininet.net import Mininet
-from mininet .log import setLogLevel
+from mininet.log import setLogLevel
 from mininet.cli import CLI
 import socket
 import threading
 
-ip="127.0.0.1"
-porta = 4321
+porta = 9876
 
 server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
-server.bind((ip,porta))
+server.bind(('',porta))
 
 server.listen(1)
 

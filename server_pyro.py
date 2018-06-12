@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from mininet.topo import Topo, SingleSwitchTopo, MinimalTopo
-from mininet.topo import SingleSwitchReversedTopo, LinearTopo
+from mininet.topo import *
 from mininet.net import Mininet
-from mininet.log import setLogLevel
+from mininet.log import logging
 from mininet.cli import CLI
 from socket import socket,AF_INET,SOCK_STREAM
 import Pyro4
 from os import system
+"""
+Tentativa com pickle, problemas para serialização das instancias da classe Mininet
+Não é possível serializar arquivos
+
 import pickle
 Pyro4.config.SERIALIZERS_ACCEPTED = set(['json', 'marshal', 'serpent','pickle'])
 Pyro4.config.SERIALIZER = 'json'
-
+"""
 
 class Network (object):
     def __init__(self,topo):
