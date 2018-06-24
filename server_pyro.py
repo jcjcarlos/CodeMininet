@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from mininet.topo import *
 from mininet.net import Mininet
-from mininet.log import logging
+from mininet.log import setLogLevel,logging
 from mininet.cli import CLI
 from socket import socket,AF_INET,SOCK_STREAM
 import Pyro4
