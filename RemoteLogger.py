@@ -3,6 +3,7 @@ from mininet.log import lg,setLogLevel
 import cPickle
 import logging
 from logging import handlers
+
 #A biblioteca SocketHandler utiliza cPickle ao inves de pickle
 class SocketHandlerMininet(handlers.SocketHandler):
     def __init__(self,host='',port=handlers.DEFAULT_TCP_LOGGING_PORT):

@@ -5,6 +5,8 @@ from mininet.net import Mininet
 from mininet.cli import CLI
 from socket import socket,AF_INET,SOCK_STREAM
 import RemoteLogger
+import pickle
+import ServerSocket
 from os import system
 """
 Tentativa com pickle, problemas para serialização das instancias da classe Mininet
@@ -21,6 +23,7 @@ class Network (object):
         self.net = Mininet(topo)
         self.net.start()
         self.elements = {}
+    
         
     def command(self,command):
         if self.get_parameters(command):
@@ -53,9 +56,25 @@ class Network (object):
     
     def stop(self):
         self.net.stop()
+        
+class ControllerNetwork(object):
+    def __init__(self):
+        self.network = Network(MinimalTopo())
+        self.server = ServerSocket()
+    
+    def initialize(self,host='localhost'):
+        valid = self.server.connection_client()
+            
+    def run(self):
+        options = ''
+        while not options == 'exit':
+            options = pickle.loads(self.server.run_server())
+            self.network.command(options)        
 
 if __name__=='__main__':
-    network = Network(MinimalTopo())
+    controlNetwork = ControllerNetwork()
+    controlNetwork.initialize()
+    controlNetwork.run()
     """
     1 - Tentavia via Pyro4
     daemon = Pyro4.Daemon()
@@ -63,19 +82,7 @@ if __name__=='__main__':
     net = Mininet(topo = topo)
     net.start()
     uri = daemon.register(net)
+    daemon.requestLoop()
     """
     
-    #2 - Tentativa via Socket
-    server = socket(AF_INET,SOCK_STREAM)
-    server.bind(('',9876))
-    server.listen(1)
-    print('*** Wait Client...')
-    client,addr = server.accept()
-    print('*** Client connected:',addr)
-    client.send('Conection estabilished'.encode())
-    options = client.recv(1024).decode()
-    while options != 'exit':
-        client.send(network.command(options).encode('ascii'))
-        options = str(client.recv(1024).decode('ascii'))
-    client.close()
-    #daemon.requestLoop()
+    #2 - Tentativa via Socket   
