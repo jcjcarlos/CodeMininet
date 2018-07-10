@@ -25,13 +25,15 @@ class SocketHandlerMininet(handlers.SocketHandler):
             self.handleError( record )
             return cPickle.dumps('*** Error ')
 
-def main():
+"""
+A classe Lg é herdade de Logger, atuando como controlador, permitindo a alteração por ser singleton
+"""
+setLogLevel('info') #Seta o setLevel do controlador
+
+def start_socketHandler():
     socket_handler = SocketHandlerMininet('', handlers.DEFAULT_TCP_LOGGING_PORT)
     socket_handler.setLevel(logging.INFO)
     lg.addHandler(socket_handler)
-    setLogLevel('info')
 
-if not __name__ == '__main__':
-    main()
 
         

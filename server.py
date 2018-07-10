@@ -8,6 +8,8 @@ import RemoteLogger
 import pickle
 import ServerSocket
 from os import system
+import logging
+logging.basicConfig(level=logging.DEBUG,format='%(levelname)s - %(message)s')
 """
 Tentativa com pickle, problemas para serialização das instancias da classe Mininet
 Não é possível serializar arquivos
@@ -63,7 +65,7 @@ class ControllerNetwork(object):
         self.server = ServerSocket()
     
     def initialize(self,host='localhost'):
-        valid = self.server.connection_client()
+        return self.server.connection_client()
             
     def run(self):
         options = ''
@@ -72,8 +74,11 @@ class ControllerNetwork(object):
             self.network.command(options)        
 
 if __name__=='__main__':
+    logging.debug('Inicializando controlador de rede...')
     controlNetwork = ControllerNetwork()
-    controlNetwork.initialize()
+    logging.debug('Aguardando conexão do cliente...')
+    valid = controlNetwork.initialize()
+    loggin.debug('Connection Client? - ' + str(valid))
     controlNetwork.run()
     """
     1 - Tentavia via Pyro4

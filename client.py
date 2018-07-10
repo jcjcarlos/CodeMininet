@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from mininet.topo import *
 from mininet.net import Mininet
-from socket import socket,AF_INET,SOCK_STREAM,error as socket.error
+from socket import socket,AF_INET,SOCK_STREAM,error as socket_exception
 import logging
 from logging.handlers import DEFAULT_TCP_LOGGING_PORT
 #import SocketServer
@@ -41,7 +41,7 @@ class ClientNetwork(threading.Thread):
                 self.sock.connect((host,DEFAULT_TCP_LOGGING_PORT))
                 logging.debug('Socket Conectado:' + self.sock.getpeername())
                 isValid = True
-            except socket.error:
+            except socket_exception:
                 logging.debug('Error na conexao!')
                 pass
         return isValid
@@ -54,7 +54,7 @@ class ClientNetwork(threading.Thread):
             else:
                 try:
                     valid = bool(socket.inet_aton(host))
-                except socket.error:
+                except socket_exception:
                     pass
         return valid
     
