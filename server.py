@@ -3,12 +3,14 @@
 from mininet.topo import *
 from mininet.net import Mininet
 from mininet.cli import CLI
-from socket import socket,AF_INET,SOCK_STREAM
+from socket import socket,AF_INET,SOCK_STREAM,SOL_SOCKET,SO_REUSEADDR
 import RemoteLogger
 import pickle
-import ServerSocket
+from ServerSocket import ServerSocket
 from os import system
+from time import sleep
 import logging
+from logging.handlers import DEFAULT_TCP_LOGGING_PORT
 logging.basicConfig(level=logging.DEBUG,format='%(levelname)s - %(message)s')
 """
 Tentativa com pickle, problemas para serialização das instancias da classe Mininet
@@ -62,10 +64,9 @@ class Network (object):
 class ControllerNetwork(object):
     def __init__(self):
         self.network = Network(MinimalTopo())
-        self.server = ServerSocket()
-    
+        self.server = ServerSocket(port=DEFAULT_TCP_LOGGING_PORT + 1)#Socket que recebe comandos do cliente
     def initialize(self,host='localhost'):
-        return self.server.connection_client()
+        return self.server.connection_client()#Aguardando cliente conectar ao servidor
             
     def run(self):
         options = ''
@@ -77,8 +78,12 @@ if __name__=='__main__':
     logging.debug('Inicializando controlador de rede...')
     controlNetwork = ControllerNetwork()
     logging.debug('Aguardando conexão do cliente...')
-    valid = controlNetwork.initialize()
-    loggin.debug('Connection Client? - ' + str(valid))
+    client = controlNetwork.initialize() #chama o método do Server connection_client e espera um cliente conectar
+    logging.debug('O Servidor foi conectado pelo cliente')
+    if client:
+        sleep(1)
+        RemoteLogger.connection_addr(client[0]) #connect do Logger, se conecta a um servidor, thread interno
+        logging.debug('O Servidor se conectou ao cliente')
     controlNetwork.run()
     """
     1 - Tentavia via Pyro4

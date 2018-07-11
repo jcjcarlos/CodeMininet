@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 from mininet.topo import *
 from mininet.net import Mininet
-from socket import socket,AF_INET,SOCK_STREAM,error as socket_exception
+import socket
 import logging
 from logging.handlers import DEFAULT_TCP_LOGGING_PORT
-#import SocketServer
-import ServerSocket
+#import ServerSocket
+from ServerSocket import ServerSocket
 import threading
+from time import sleep
 logging.basicConfig(level=logging.DEBUG,format= '%(levelname)s - %(message)s')
 
 """
@@ -29,22 +30,18 @@ class ClientNetwork(threading.Thread):
     
     def __init__(self):
         super(ClientNetwork,self).__init__()
-        self.sock = socket(AF_INET, SOCK_STREAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
     
     def connect_server(self,host='localhost'):
-        logging.debug('Validando IP')
-        isValid = self.validate_ip(host)
-        logging.debug('O ip é ' + str(isValid))
-        tentative = 5
-        if isValid:
+        if self.validate_ip(host):
             try:
-                self.sock.connect((host,DEFAULT_TCP_LOGGING_PORT))
-                logging.debug('Socket Conectado:' + self.sock.getpeername())
-                isValid = True
-            except socket_exception:
+                self.sock.connect((host,DEFAULT_TCP_LOGGING_PORT + 1))
+                logging.debug('Cliente se conectou ao Servidor')
+                return True
+            except socket.error:
                 logging.debug('Error na conexao!')
-                pass
-        return isValid
+        return False
     
     def validate_ip(self,host):
         valid = False
@@ -54,22 +51,31 @@ class ClientNetwork(threading.Thread):
             else:
                 try:
                     valid = bool(socket.inet_aton(host))
-                except socket_exception:
+                except socket.error:
                     pass
         return valid
     
-    def run(self):
+    def start_client(self):
         option = ''
         while not ClientNetwork._shutdown or not option == 'exit':
             option = raw_input('> ')
             self.sock.send(option.encode('ascii'))
+            
+class ServerSocketClient(ServerSocket,threading.Thread):
+    def __init__(self,port=DEFAULT_TCP_LOGGING_PORT):
+        ServerSocket.__init__(self,port)
+    
+    def run(self):
+        self.server_forever()
               
 if __name__ == '__main__':
-    client_network = ClientNetwork()
-    logging.debug('Conectando ao servidor')
-    client_network.connect_server()
-    client_network.start()
-    
-    server_network = ServerSocket.ServerSocket()
-    server_network.connection_client()
-    server_network.server_forever()
+    client_network = ClientNetwork() #Thread que conecta a um servidor,
+    if client_network.connect_server():
+        server_network = ServerSocket(port=DEFAULT_TCP_LOGGING_PORT)
+        logging.debug('Esperando conexão do servidor')
+        server_network.connection_client() #Espera o servidor conectar ao socket, através da classe ServerSocket
+        logging.debug('Cliente foi conectado pelo Servidor')
+        client_network.start_client()
+        server_network.start()
+    else:
+        logging.debug('Client não conectou ao server')
