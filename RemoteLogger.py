@@ -22,13 +22,27 @@ class SocketHandlerMininet(handlers.SocketHandler):
     def makePickle(self, record):
         try:
             msg = record.getMessage() # Ou format(record)
-            fmt = '%s'
-            self.sock.send(cPickle.dumps(fmt % msg)) # Codificacao unicode no topo
-            logging.DEBUG('Mensagem do Logger: ' + msg)
-            return cPickle.dumps(msg)
-        except Exception:
+            #Evitar erros na serialização de objetos que não sejam do tipo str
+            fmt =  '%s'
+            return msg.encode()
+        except:
             self.handleError( record )
             return cPickle.dumps('*** Error ')
+        
+    #Metodo para utilizar os socket criado pela classe para enviar e receber comandos
+    def send(self,s):
+        """
+        Metodo redefinido para debugar o envio de mensagems pelo socketHandler
+        """
+        if self.sock is None:
+            self.createSocket()
+            
+        else:
+            try:
+                self.sock.sendall(s)
+                self.flush()
+            except OSError:
+                logging.debug('Mensagem' + cPickle.dumps(s) + ' nao enviada')
 
 """
 A classe Lg é herdado de Logger, atuando como controlador, permitindo a alteração por ser singleton
@@ -40,5 +54,7 @@ def connection_addr(addr_client = 'localhost'):
     socket_handler.setLevel(logging.INFO)
     lg.addHandler(socket_handler)
 
+def getSocket():
+    return lg.handlers[1].getSocket()
 
         

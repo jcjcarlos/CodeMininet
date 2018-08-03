@@ -6,12 +6,13 @@ from mininet.cli import CLI
 from socket import socket,AF_INET,SOCK_STREAM,SOL_SOCKET,SO_REUSEADDR
 import RemoteLogger
 import pickle
-from ServerSocket import ServerSocket
+import ServerSocket
 from os import system
 from time import sleep
 import logging
 from logging.handlers import DEFAULT_TCP_LOGGING_PORT
 logging.basicConfig(level=logging.DEBUG,format='%(levelname)s - %(message)s')
+ServerSocket.set_name_operator('Server')
 """
 Tentativa com pickle, problemas para serialização das instancias da classe Mininet
 Não é possível serializar arquivos
@@ -26,18 +27,18 @@ class Network (object):
     def __init__(self,topo):
         self.net = Mininet(topo)
         self.net.start()
-        self.elements = {}
-    
+        self.elements = {}   
         
     def command(self,command):
         if self.get_parameters(command):
             components = self.get_parameters(command)
             try:
                 value = getattr(self.net,components[0])(*components[1])
-                print repr(value)
-                print str(value)
-                return repr(value)
+                logging.debug(str(value))
+                return str(value)
             except Exception,TypeError:
+                logging.debug(str(components))
+                logging.debug('Comando nao encontrado')
                 return str(None)
         else:
             try:
@@ -55,36 +56,46 @@ class Network (object):
                 parameters = None
             return [function,parameters]
         except:
-            print ('Argumento invalido')
-            return None
+            logging.debug('Argumento invalido')
+            return 'Argumento invalido'
     
     def stop(self):
         self.net.stop()
         
 class ControllerNetwork(object):
     def __init__(self):
+        self.server = ServerSocket.ServerSocket(port=DEFAULT_TCP_LOGGING_PORT + 1) #Socket que recebe comandos do cliente
+    
+    def accept_client(self):
+        return self.server.accept()
+    
+    def initialize(self):
+        #Aguardando cliente conectar ao servidor
         self.network = Network(MinimalTopo())
-        self.server = ServerSocket(port=DEFAULT_TCP_LOGGING_PORT + 1)#Socket que recebe comandos do cliente
-    def initialize(self,host='localhost'):
-        return self.server.connection_client()#Aguardando cliente conectar ao servidor
             
     def run(self):
         options = ''
         while not options == 'exit':
-            options = pickle.loads(self.server.run_server())
-            self.network.command(options)        
-
+            options = self.server.run_server().decode()
+            print options
+            self.network.command(options)
+            
 if __name__=='__main__':
-    logging.debug('Inicializando controlador de rede...')
     controlNetwork = ControllerNetwork()
-    logging.debug('Aguardando conexão do cliente...')
-    client = controlNetwork.initialize() #chama o método do Server connection_client e espera um cliente conectar
-    logging.debug('O Servidor foi conectado pelo cliente')
-    if client:
-        sleep(1)
-        RemoteLogger.connection_addr(client[0]) #connect do Logger, se conecta a um servidor, thread interno
-        logging.debug('O Servidor se conectou ao cliente')
+    client_addr = controlNetwork.accept_client() #Aguarda cliente se conectar para receber os comandos
+    if client_addr:
+        logging.debug('Cliente conectado' + str(client_addr))
+        RemoteLogger.connection_addr(client_addr[0])
+        controlNetwork.initialize()
+        controlNetwork.run()
+    else:
+        logging.debug('Cliente não conectado')
+    
+    
+    #connect do Logger, se conecta a um servidor, thread interno
     controlNetwork.run()
+    #logging.debug('O Cliente não se conectou')
+
     """
     1 - Tentavia via Pyro4
     daemon = Pyro4.Daemon()

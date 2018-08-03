@@ -7,6 +7,10 @@ import pickle
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+def set_name_operator(name):
+    global operator
+    operator = name
+
 class ServerSocket(object):
     def __init__(self,port=DEFAULT_TCP_LOGGING_PORT):
         self.server = socket(AF_INET,SOCK_STREAM)
@@ -14,13 +18,15 @@ class ServerSocket(object):
         self.client = None
         self.port = port
     
-    def connection_client(self, host='localhost'):
+    def accept(self,host='localhost'):
+        logging.debug(str(host) + ' ' + str(self.port))
         self.server.bind((host,self.port))
         self.server.listen(1)
         try:
+            logging.debug('ServerSocket do '+str(operator)+' Aguardando Conexao...')
             new_client, addr = self.server.accept()
             self.client = new_client
-            logging.debug('ServerSocket conectado:' + str(addr))
+            logging.debug('ServerSocket do '+str(operator)+': Conexao OK')
             return addr
         except socket_exception:
             return None
@@ -34,7 +40,11 @@ class ServerSocket(object):
     
     def recv(self):
         try:
-            return pickle.dumps(self.client.recv(1024))
+            return self.client.recv(1024).decode()
         except socket_exception:
             self.client.close()
             return None
+    
+    def close(self):
+        self.server.close()
+        self.client.close()
