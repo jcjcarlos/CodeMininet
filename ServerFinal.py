@@ -13,15 +13,6 @@ import logging
 from logging.handlers import DEFAULT_TCP_LOGGING_PORT
 logging.basicConfig(level=logging.DEBUG,format='%(levelname)s - %(message)s')
 ServerSocket.set_name_operator('Server')
-"""
-Tentativa com pickle, problemas para serialização das instancias da classe Mininet
-Não é possível serializar arquivos
-
-import Pyro4
-import pickle
-Pyro4.config.SERIALIZERS_ACCEPTED = set(['json', 'marshal', 'serpent','pickle'])
-Pyro4.config.SERIALIZER = 'json'
-"""
 
 class Network (object):
     def __init__(self,topo):
@@ -92,19 +83,4 @@ if __name__=='__main__':
     else:
         logging.debug('Cliente não conectado')
     
-    
-    #connect do Logger, se conecta a um servidor, thread interno
     controlNetwork.run()
-    #logging.debug('O Cliente não se conectou')
-
-    """
-    1 - Tentavia via Pyro4
-    daemon = Pyro4.Daemon()
-    topo = MinimalTopo()
-    net = Mininet(topo = topo)
-    net.start()
-    uri = daemon.register(net)
-    daemon.requestLoop()
-    """
-    
-    #2 - Tentativa via Socket   

@@ -11,10 +11,6 @@ import threading
 from time import sleep
 logging.basicConfig(level=logging.DEBUG,format= '%(levelname)s - %(message)s')
 ServerSocket.set_name_operator('Client')
-"""
-Pyro4.config.SERIALIZERS_ACCEPTED = set(['json', 'marshal', 'serpent','pickle'])
-Pyro4.config.SERIALIZER = 'json'
-"""
 
 """           
 class StreamRequestMininet(ServerSocket.ServerSocket.StreamRequestHandler):
