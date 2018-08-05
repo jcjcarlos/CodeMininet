@@ -52,6 +52,7 @@ class Network (object):
             function = command.split('(')[0]
             if len(command.split('(')) >= 2:
                 parameters = command.split('(')[1].split(')')[0].split(',')
+                print parameters
             else:
                 parameters = None
             return [function,parameters]
