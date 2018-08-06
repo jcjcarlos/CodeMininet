@@ -18,32 +18,44 @@ class Network (object):
     def __init__(self,topo):
         self.net = Mininet(topo)
         self.net.start()
+        self.except_functions = ['addHost','addSwitch','addController','addNAT']
         self.elements = {}   
         
     def command(self,command):
         if self.get_parameters(command):
             components = self.get_parameters(command)
+            print components
             try:
+                if not components[0] in self.except_functions:
+                    for index in range(len(components[1])):
+                        if self.elements.has_key(components[1][index]):
+                            components[1][index] = self.elements[components[1][index]]
+                    
+             
                 value = getattr(self.net,components[0])(*components[1])
+                if components[0] in self.except_functions:
+                    self.elements[components[1][0]] = value
                 logging.debug(str(value))
+                RemoteLogger.lg.info(str(value))
+                print self.elements
                 return str(value)
             except Exception,TypeError:
-                logging.debug(str(components))
+                #logging.debug(str(components))
                 logging.debug('Comando nao encontrado')
                 return str(None)
         else:
             try:
                 return str(getattr(self.net,command)())
             except:
-                print ('Commando sem argumento invalido')
+                print ('Argumento invalido')
                 return str(None)
+    #addLink(get(h1),get(h2))
     
     def get_parameters(self,command):
         try:
             function = command.split('(')[0]
             if len(command.split('(')) >= 2:
                 parameters = command.split('(')[1].split(')')[0].split(',')
-                print parameters
             else:
                 parameters = None
             return [function,parameters]
@@ -66,11 +78,15 @@ class ControllerNetwork(object):
         self.network = Network(MinimalTopo())
             
     def run(self):
-        options = ''
-        while not options == 'exit':
-            options = self.server.run_server().decode()
-            print options
-            self.network.command(options)
+        options = self.server.run_server()
+        while options:
+            if options == 'exit':
+                self.network.stop()
+                self.server.close()
+                break
+            else:
+                self.network.command(options)
+            options = self.server.run_server()
             
 if __name__=='__main__':
     controlNetwork = ControllerNetwork()
@@ -83,4 +99,3 @@ if __name__=='__main__':
     else:
         logging.debug('Cliente não conectado')
     
-    controlNetwork.run()

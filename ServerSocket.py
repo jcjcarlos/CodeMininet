@@ -40,10 +40,12 @@ class ServerSocket(object):
     
     def recv(self):
         try:
-            return self.client.recv(1024).decode()
-        except socket_exception:
-            self.client.close()
-            return None
+            return pickle.loads(self.client.recv(1024))
+            #return self.client.recv(1024)
+        except:
+            self.close()
+            logging.debug('Encerrando Conexao')
+            return 'exit'
     
     def close(self):
         self.server.close()

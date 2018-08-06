@@ -53,11 +53,13 @@ class ClientNetwork(threading.Thread):
         return valid
     
     def start_client(self):
-        logging.debug('start_client')
         option = ''
-        while not ClientNetwork._shutdown or not option == 'exit':
+        while not ClientNetwork._shutdown:
             option = raw_input('> ')
-            self.sock.send(option.encode())
+            if option == 'exit':
+                self.sock.close()
+                break
+            self.sock.send(pickle.dumps(option))
             
 class ServerSocketClient(ServerSocket.ServerSocket,threading.Thread):
     """
@@ -73,20 +75,20 @@ class ServerSocketClient(ServerSocket.ServerSocket,threading.Thread):
         exit = 0
         while not ClientNetwork._shutdown:
             try:
-                recv = self.run_server().decode().rstrip('\n')
-                if recv:
-                    print recv
-                    exit = 0
-                else:
-                    exit = exit + 1
-                if exit == 10:
+                recv = self.run_server()
+                temp_list = [x for x in recv if not x == '\n']
+                if recv == 'exit':
                     logging.debug('Encerrando Socket')
                     self.close
                     ClientNetwork._shutdown = True
-                    break               
+                    break
+                else:
+                    print ''.join(temp_list)
                 
-            except:
+            except Exception:
+                logging.debug('O Servidor encerrou conexao')
                 break
+                
 if __name__ == '__main__':
     """
     1 - Criar ClientNetwork para enviar comandos para o servidor
@@ -97,7 +99,7 @@ if __name__ == '__main__':
     if client_network.connect_server():
         server_network = ServerSocketClient(port=DEFAULT_TCP_LOGGING_PORT)
         server_network.start()
-        logging.debug('Iniciando envio de comandos')
+        sleep(1)
         client_network.start_client()
       
     else:
